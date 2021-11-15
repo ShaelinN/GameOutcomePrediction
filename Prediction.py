@@ -2,6 +2,7 @@ import pandas as pd
 from sklearn.decomposition import PCA
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
+from sklearn.ensemble import RandomForestRegressor
 from sklearn.linear_model import LinearRegression
 from sklearn.linear_model import RidgeCV, LassoCV
 from sklearn.svm import SVR
@@ -24,11 +25,10 @@ def train():
     scaler = StandardScaler()
     scaler.fit(X_train)
 
-
     X_train = scaler.transform(X_train)
     X_test = scaler.transform(X_test)
 
-    pca = PCA()
+    pca = PCA(n_components=26, svd_solver="full")
     pca.fit_transform(X_train)
 
 
@@ -36,9 +36,10 @@ def train():
     X_test =pca.transform(X_test)
 
 
+    #lr = RandomForestRegressor(n_estimators=300,random_state=0)
     lr = LinearRegression()
 
-    #lr = SVR(C=30, epsilon=1)
+    #lr = SVR(C=15, epsilon=2, kernel="poly")
 
     '''
     estimators = [('ridge', RidgeCV()),
@@ -56,25 +57,27 @@ def train():
     estimators = estimators,
     final_estimator = final_estimator)'''
 
-    #lr = AdaBoostRegressor(DecisionTreeRegressor(max_depth=15), n_estimators=300, random_state=0)
+    #lr = AdaBoostRegressor(DecisionTreeRegressor(max_depth=25), n_estimators=100, random_state=0)
 
     lr.fit(X_train,Y_train)
 
     print(lr.score(X_test,Y_test))
 
-    return lr
+    return lr, pca
 
 
 Year_2003 = data.iloc[1128:1157,:33]
 Year_2004 = data.iloc[1157:, :33]
-model = train()
+model , pca= train()
 
 
 for i in range(1,len(Year_2003)):
-    TeamX = model.predict(Year_2003.iloc[i-1:i, 3:33])
+    X = pca.transform(Year_2003.iloc[i-1:i, 3:33])
+    TeamX = model.predict(X)
     TeamX_Name = Year_2003.iloc[i-1:i, 0:1]
     for j in range(i+1, len(Year_2003)):
-        TeamY = model.predict(Year_2003.iloc[j-1:j,3:33])
+        Y = pca.transform(Year_2003.iloc[j-1:j,3:33])
+        TeamY = model.predict(Y)
         TeamY_Name = Year_2003.iloc[j-1:j, 0:1]
         if (TeamX > TeamY):
             print(TeamX_Name, " beats ", TeamY_Name)
@@ -86,10 +89,12 @@ for i in range(1,len(Year_2003)):
     print()
 
 for i in range(1,len(Year_2004)):
-    TeamX = model.predict(Year_2004.iloc[i-1:i, 3:33])
+    X = pca.transform(Year_2004.iloc[i-1:i, 3:33])
+    TeamX = model.predict(X)
     TeamX_Name = Year_2004.iloc[i-1:i, 0:1]
     for j in range(i+1, len(Year_2004)):
-        TeamY = model.predict(Year_2004.iloc[j-1:j,3:33])
+        Y = pca.transform(Year_2004.iloc[j-1:j,3:33])
+        TeamY = model.predict(Y)
         TeamY_Name = Year_2004.iloc[j-1:j, 0:1]
         if (TeamX > TeamY):
             print(TeamX_Name, " beats ", TeamY_Name)
