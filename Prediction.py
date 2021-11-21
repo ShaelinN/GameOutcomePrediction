@@ -36,12 +36,12 @@ def train():
     X_test =pca.transform(X_test)
 
 
-    #lr = RandomForestRegressor(n_estimators=300,random_state=0)
+    rf = RandomForestRegressor(n_estimators=300,random_state=0)
     lr = LinearRegression()
 
-    #lr = SVR(C=15, epsilon=2, kernel="poly")
+    svr = SVR(C=15, epsilon=2, kernel="poly")
 
-    '''
+
     estimators = [('ridge', RidgeCV()),
                     ('lasso', LassoCV(random_state=42)),
                     ('knr', KNeighborsRegressor(n_neighbors=40,metric = 'euclidean'))]
@@ -53,15 +53,25 @@ def train():
     random_state = 42)
 
 
-    lr = StackingRegressor(
+    ensemble = StackingRegressor(
     estimators = estimators,
-    final_estimator = final_estimator)'''
+    final_estimator = final_estimator)
 
-    #lr = AdaBoostRegressor(DecisionTreeRegressor(max_depth=25), n_estimators=100, random_state=0)
+    ada = AdaBoostRegressor(DecisionTreeRegressor(max_depth=25), n_estimators=100, random_state=0)
 
     lr.fit(X_train,Y_train)
+    rf.fit(X_train,Y_train)
+    svr.fit(X_train,Y_train)
+    ensemble.fit(X_train,Y_train)
+    ada.fit(X_train,Y_train)
+    print("-------------------------------------------------------")
 
-    print(lr.score(X_test,Y_test))
+    print("Linear Regressor score - ",lr.score(X_test,Y_test)*100)
+    print("Random Forest Regressor score - ", rf.score(X_test,Y_test)*100)
+    print("Support Vector Regressor score - ", svr.score(X_test,Y_test)*100)
+    print("Ensembled Stacking Regressor  with Gradient Boosting score - ",ensemble.score(X_test,Y_test)*100)
+    print("AdaBooster Regressor score - ", ada.score(X_test,Y_test)*100)
+    print("-------------------------------------------------------")
 
     return lr, pca
 
