@@ -1,4 +1,5 @@
 import pandas as pd
+import numpy as np
 from sklearn.decomposition import PCA
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
@@ -12,6 +13,7 @@ from sklearn.neighbors import KNeighborsRegressor
 from sklearn.tree import DecisionTreeRegressor
 from sklearn.ensemble import AdaBoostRegressor
 import warnings
+from sklearn.metrics import mean_squared_error, mean_absolute_error
 warnings.filterwarnings("ignore")
 
 data = pd.read_csv("teams_season.csv", sep=',')
@@ -28,7 +30,7 @@ def train():
     X_train = scaler.transform(X_train)
     X_test = scaler.transform(X_test)
 
-    pca = PCA(n_components=26, svd_solver="full")
+    pca = PCA(n_components=28, svd_solver="full")
     pca.fit_transform(X_train)
 
 
@@ -65,12 +67,31 @@ def train():
     ensemble.fit(X_train,Y_train)
     ada.fit(X_train,Y_train)
     print("-------------------------------------------------------")
-
-    print("Linear Regressor score - ",lr.score(X_test,Y_test)*100)
-    print("Random Forest Regressor score - ", rf.score(X_test,Y_test)*100)
-    print("Support Vector Regressor score - ", svr.score(X_test,Y_test)*100)
-    print("Ensembled Stacking Regressor  with Gradient Boosting score - ",ensemble.score(X_test,Y_test)*100)
-    print("AdaBooster Regressor score - ", ada.score(X_test,Y_test)*100)
+    y_pred = lr.predict(X_test)
+    print("Linear Regressor : ")
+    print("     Score - ",lr.score(X_test,Y_test)*100)
+    print("     Root Mean Squared Error - ",np.sqrt(mean_squared_error(Y_test,y_pred)))
+    print("     Mean Absolute Error - ", mean_absolute_error(Y_test,y_pred))
+    y_pred = rf.predict(X_test)
+    print("Random Forest Regressor : ")
+    print("     Score - ",rf.score(X_test,Y_test)*100)
+    print("     Root Mean Squared Error - ",np.sqrt(mean_squared_error(Y_test,y_pred)))
+    print("     Mean Absolute Error - ", mean_absolute_error(Y_test,y_pred))
+    y_pred = svr.predict(X_test)
+    print("Support Vector Regressor : ")
+    print("     Score - ",svr.score(X_test,Y_test)*100)
+    print("     Root Mean Squared Error - ",np.sqrt(mean_squared_error(Y_test,y_pred)))
+    print("     Mean Absolute Error - ", mean_absolute_error(Y_test,y_pred))
+    y_pred = ensemble.predict(X_test)
+    print("Ensembled Stacking Regressor with Gradient Boosting")
+    print("     Score - ",ensemble.score(X_test,Y_test)*100)
+    print("     Root Mean Squared Error - ",np.sqrt(mean_squared_error(Y_test,y_pred)))
+    print("     Mean Absolute Error - ", mean_absolute_error(Y_test,y_pred))
+    y_pred = ada.predict(X_test)
+    print("AdaBooster Regressor : ")
+    print("     Score - ",ada.score(X_test,Y_test)*100)
+    print("     Root Mean Squared Error - ",np.sqrt(mean_squared_error(Y_test,y_pred)))
+    print("     Mean Absolute Error - ", mean_absolute_error(Y_test,y_pred))
     print("-------------------------------------------------------")
 
     return lr, pca
